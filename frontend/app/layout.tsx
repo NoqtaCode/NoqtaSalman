@@ -83,6 +83,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const siteName = BRAND_NAME;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.nakheel-seyaj.com";
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
+  const googleAdsId = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID || "AW-18540157731";
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -113,6 +114,21 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        {/* Google Ads Tag (gtag.js) */}
+        <script
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=${googleAdsId}`}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${googleAdsId}');
+            `,
+          }}
         />
       </head>
       <body className={cairo.className}>
