@@ -2,15 +2,20 @@ import Link from "next/link";
 import { ArrowLeft, ArrowUpLeft, Clock3, Mail, MapPin, MessageCircle, Phone, Sprout } from "lucide-react";
 import SiteNavbar from "../../components/layout/SiteNavbar";
 import Footer from "../../components/layout/Footer";
-import { BRAND_NAME, CONTACT } from "../../lib/brand";
+import { CONTACT } from "../../lib/brand";
+import { getSiteName } from "../../lib/site-settings";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "تواصل معنا",
-  description: "تواصل مع سياج ونخيل المملكة لمناقشة مشروعك الزراعي أو الإنشائي.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const siteName = await getSiteName();
+  return {
+    title: "تواصل معنا",
+    description: `تواصل مع ${siteName} لمناقشة مشروعك الزراعي أو الإنشائي.`,
+  };
+}
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const siteName = await getSiteName();
   return (
     <div className="min-h-screen bg-[#f7f5ef] text-[#172638]" dir="rtl">
       <SiteNavbar />
@@ -26,7 +31,7 @@ export default function ContactPage() {
             </div>
             <div className="relative overflow-hidden rounded-[1.75rem] border border-white/15 bg-gradient-to-br from-white/[0.1] to-white/[0.035] p-6 shadow-2xl shadow-black/15 backdrop-blur sm:p-8">
               <div className="pointer-events-none absolute -left-12 -top-16 h-44 w-44 rounded-full bg-[#f2c46d]/10 blur-3xl" />
-              <span className="text-xs font-bold tracking-[0.16em] text-[#f2c46d]">{BRAND_NAME}</span>
+              <span className="text-xs font-bold tracking-[0.16em] text-[#f2c46d]">{siteName}</span>
               <h2 className="mt-4 text-2xl font-black leading-snug sm:text-3xl">نحن جاهزون لسماع فكرتك.</h2>
               <p className="mt-4 text-sm leading-7 text-white/60">اختر الخدمة التي تهمك، وجهّز وصفًا بسيطًا للموقع والمساحة حتى نساعدك بصورة أوضح.</p>
               <div className="relative mt-7 grid gap-3 border-t border-white/10 pt-6 sm:grid-cols-2">

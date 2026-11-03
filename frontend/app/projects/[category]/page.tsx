@@ -7,6 +7,7 @@ import SiteNavbar from "../../../components/layout/SiteNavbar";
 import Footer from "../../../components/layout/Footer";
 import CategoryGallery from "../../../components/sections/CategoryGallery";
 import type { Metadata } from "next";
+import { getSiteName } from "../../../lib/site-settings";
 
 export const revalidate = 0;
 
@@ -18,9 +19,10 @@ function resolveCategory(slug: string) {
 export async function generateMetadata(props: { params: Promise<{ category: string }> }): Promise<Metadata> {
   const { category: slug } = await props.params;
   const category = resolveCategory(slug);
+  const siteName = await getSiteName();
   return category ? {
     title: `أعمال ${category.title}`,
-    description: `${category.description} استعرض نماذج من أعمال سياج ونخيل المملكة.`,
+    description: `${category.description} استعرض نماذج من أعمال ${siteName}.`,
   } : { title: "معرض الأعمال" };
 }
 

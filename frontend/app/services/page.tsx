@@ -3,12 +3,16 @@ import { ArrowLeft, ArrowUpLeft, Check, Fence, Leaf, Sprout, Sun, Trees, Warehou
 import SiteNavbar from "../../components/layout/SiteNavbar";
 import Footer from "../../components/layout/Footer";
 import { categories } from "../../lib/brand";
+import { getSiteName } from "../../lib/site-settings";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "خدماتنا",
-  description: "خدمات سياج ونخيل المملكة في زراعة النخيل والأشجار والزيتون، تركيب الشبوك، وتنفيذ الهناجر والسواتر.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const siteName = await getSiteName();
+  return {
+    title: "خدماتنا",
+    description: `خدمات ${siteName} في زراعة النخيل والأشجار والزيتون، تركيب الشبوك، وتنفيذ الهناجر والسواتر.`,
+  };
+}
 
 const icons = [Sprout, Fence, Trees, Leaf, Warehouse];
 const services = [

@@ -3,13 +3,16 @@ import Link from "next/link";
 import { ArrowLeft, Check, Fence, Leaf, Sprout, Trees, Warehouse } from "lucide-react";
 import SiteNavbar from "../../components/layout/SiteNavbar";
 import Footer from "../../components/layout/Footer";
-import { BRAND_NAME } from "../../lib/brand";
+import { getSiteName } from "../../lib/site-settings";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "من نحن",
-  description: "تعرّف على سياج ونخيل المملكة وحلولنا للنخيل والأشجار والزيتون والشبوك والهناجر والسواتر.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const siteName = await getSiteName();
+  return {
+    title: "من نحن",
+    description: `تعرّف على ${siteName} وحلولنا للنخيل والأشجار والزيتون والشبوك والهناجر والسواتر.`,
+  };
+}
 
 const services = [
   { title: "الشبوك", detail: "حماية وتنظيم الأراضي", Icon: Fence },
@@ -25,7 +28,8 @@ const principles = [
   ["ننفذ بإتقان", "متابعة واضحة واهتمام بجودة كل مرحلة من المشروع."],
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const siteName = await getSiteName();
   return (
     <div className="min-h-screen bg-[#f7f5ef] text-[#172638]" dir="rtl">
       <SiteNavbar />
@@ -42,7 +46,7 @@ export default function AboutPage() {
                   <span className="block text-[#a47d3c]">أجمل وأكثر نفعًا.</span>
                 </h1>
                 <p className="mt-5 max-w-2xl text-sm leading-8 text-[#667487] sm:text-base sm:leading-9">
-                  {BRAND_NAME} مؤسسة سعودية تعمل على تجهيز المزارع والأراضي بحلول متكاملة؛ من الشبوك وتنظيم الموقع، إلى توريد وزراعة النخيل والأشجار والزيتون، وتنفيذ الهناجر والسواتر. نحرص على فهم احتياجك أولًا، ثم ننسق تفاصيل العمل ونمضي معك خطوة بخطوة نحو نتيجة تناسب أرضك ومشروعك.
+                  {siteName} مؤسسة سعودية تعمل على تجهيز المزارع والأراضي بحلول متكاملة؛ من الشبوك وتنظيم الموقع، إلى توريد وزراعة النخيل والأشجار والزيتون، وتنفيذ الهناجر والسواتر. نحرص على فهم احتياجك أولًا، ثم ننسق تفاصيل العمل ونمضي معك خطوة بخطوة نحو نتيجة تناسب أرضك ومشروعك.
                 </p>
                 <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-xs font-bold text-[#35475b] sm:text-sm">
                   {["اهتمام بالتفاصيل", "حلول تناسب موقعك", "تنفيذ منظم"].map((item) => (
@@ -58,7 +62,7 @@ export default function AboutPage() {
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_20%_15%,rgba(164,125,60,0.12),transparent_45%)]" />
                 <Image
                   src="/about-collage.jpg"
-                  alt="مشاريع سياج ونخيل المملكة: الشبوك والنخيل والزيتون والهناجر والسواتر"
+                  alt={`مشاريع ${siteName}: الشبوك والنخيل والزيتون والهناجر والسواتر`}
                   width={1008}
                   height={722}
                   priority

@@ -7,20 +7,19 @@ import Image from "next/image";
 import { ArrowUpLeft, Menu } from "lucide-react";
 import { categories, BRAND_NAME } from "../../lib/brand";
 
-export default function Navbar({ overlay = false, logoUrl }: { overlay?: boolean; logoUrl?: string }) {
+export default function Navbar({ overlay = false, logoUrl, siteName = BRAND_NAME }: { overlay?: boolean; logoUrl?: string; siteName?: string }) {
   const brandLogo = logoUrl || "/site-logo.png";
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-4 pt-3 transition-all sm:px-6 sm:pt-4 lg:px-10" dir="rtl">
       <nav className={`mx-auto flex max-w-[1440px] items-center justify-between px-4 py-3 text-white transition-all duration-300 sm:px-6 ${overlay ? "rounded-2xl border border-white/30 bg-[#071827]/60 shadow-xl shadow-black/15 backdrop-blur-lg" : "rounded-2xl border border-white/15 bg-[#071827]/90 shadow-2xl shadow-black/10 backdrop-blur-xl"}`}>
-        <Link href="/" className="group flex items-center gap-3" aria-label={BRAND_NAME}>
+        <Link href="/" className="group flex items-center gap-3" aria-label={siteName}>
           <span className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden bg-transparent sm:h-16 sm:w-16">
-            <Image src={brandLogo} alt="شعار سياج ونخيل المملكة" fill unoptimized sizes="64px" className="object-contain" />
+            <Image src={brandLogo} alt={`شعار ${siteName}`} fill unoptimized sizes="64px" className="object-contain" />
           </span>
           <span className="leading-tight">
-            <span className="block text-lg font-black tracking-tight sm:text-xl">سياج ونخيل</span>
-            <span className="mt-1 block text-[11px] font-bold tracking-[0.24em] text-[#f2c46d]">المملكة</span>
+            <span className="block max-w-48 text-base font-black tracking-tight sm:text-lg">{siteName}</span>
           </span>
         </Link>
 

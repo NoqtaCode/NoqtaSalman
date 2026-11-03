@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowUpLeft, Sprout } from "lucide-react";
 import SiteNavbar from "../../../components/layout/SiteNavbar";
 import Footer from "../../../components/layout/Footer";
 import type { Metadata } from "next";
+import { getSiteName } from "../../../lib/site-settings";
 
 async function getProject(slug: string) {
   return safeFetchFresh<any>(`
@@ -32,7 +33,10 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
 
 export default async function ProjectDetails(props: { params: Promise<{ slug: string }> }) {
   const { slug } = await props.params;
-  const project = await getProject(decodeURIComponent(slug));
+  const [project, siteName] = await Promise.all([
+    getProject(decodeURIComponent(slug)),
+    getSiteName(),
+  ]);
   if (!project) notFound();
 
   return (
@@ -46,7 +50,7 @@ export default async function ProjectDetails(props: { params: Promise<{ slug: st
               <Image src={project.imageUrl} alt={project.title} fill unoptimized priority sizes="100vw" className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#071827]/80 via-transparent to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-10">
-                <span className="mb-3 inline-flex items-center gap-2 text-xs font-bold text-[#f2c46d]"><Sprout size={15} /> من أعمال سياج ونخيل المملكة</span>
+                <span className="mb-3 inline-flex items-center gap-2 text-xs font-bold text-[#f2c46d]"><Sprout size={15} /> من أعمال {siteName}</span>
                 <h1 className="max-w-3xl text-3xl font-black sm:text-5xl">{project.title}</h1>
                 {project._createdAt && <p className="mt-3 text-xs font-bold text-white/65">أضيف في {new Date(project._createdAt).toLocaleDateString("ar-SA")}</p>}
               </div>

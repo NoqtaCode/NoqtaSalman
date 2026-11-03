@@ -1,18 +1,20 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpLeft, Code2, Mail, MessageCircle, Phone } from "lucide-react";
-import { BRAND_DESCRIPTION, BRAND_NAME, CONTACT, categories } from "../../lib/brand";
+import { BRAND_DESCRIPTION, CONTACT, categories } from "../../lib/brand";
+import { getSiteName } from "../../lib/site-settings";
 
-export default function Footer() {
+export default async function Footer() {
+  const siteName = await getSiteName();
   return (
     <footer className="bg-[#071827] text-white" dir="rtl">
       <div className="mx-auto grid max-w-[1440px] gap-10 px-6 py-16 md:grid-cols-2 md:px-10 lg:grid-cols-[1.25fr_0.8fr_0.8fr_1.15fr] lg:gap-12 lg:py-20">
         <div className="max-w-md">
           <Link href="/" className="mb-6 inline-flex items-center gap-3">
             <span className="relative flex h-14 w-14 shrink-0 items-center justify-center">
-              <Image src="/site-logo.png" alt="شعار سياج ونخيل المملكة" fill unoptimized sizes="56px" className="object-contain" />
+              <Image src="/site-logo.png" alt={`شعار ${siteName}`} fill unoptimized sizes="56px" className="object-contain" />
             </span>
-            <span className="text-xl font-black">{BRAND_NAME}</span>
+            <span className="text-xl font-black">{siteName}</span>
           </Link>
           <p className="mb-7 text-sm leading-8 text-white/55">{BRAND_DESCRIPTION}</p>
           <Link href="/contact" className="inline-flex items-center gap-2 text-sm font-bold text-[#f2c46d] transition hover:text-white">
@@ -51,7 +53,7 @@ export default function Footer() {
 
       <div className="border-t border-white/10 px-6 py-5 md:px-10">
         <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-4 text-xs text-white/40 sm:flex-row sm:items-center">
-          <span className="sm:flex-1">© {new Date().getFullYear()} {BRAND_NAME}. جميع الحقوق محفوظة.</span>
+          <span className="sm:flex-1">© {new Date().getFullYear()} {siteName}. جميع الحقوق محفوظة.</span>
           <span className="sm:flex-1 sm:text-center">من الأرض… نصنع أثرًا يدوم.</span>
           <a
             href="https://wa.me/967737543563"
