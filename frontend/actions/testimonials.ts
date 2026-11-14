@@ -4,11 +4,12 @@
 // Testimonials Server Actions
 // ============================================================
 
-import { client } from "../lib/sanity";
+import { assertSanityConfigured, client } from "../lib/sanity";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function createTestimonial(formData: FormData) {
+  assertSanityConfigured();
   const clientName = formData.get('clientName') as string;
   const feedback = formData.get('feedback') as string;
 
@@ -30,12 +31,14 @@ export async function createTestimonial(formData: FormData) {
 }
 
 export async function deleteTestimonial(id: string) {
+  assertSanityConfigured();
   await client.delete(id);
   revalidatePath('/admin/testimonials');
   revalidatePath('/');
 }
 
 export async function updateTestimonial(id: string, formData: FormData) {
+  assertSanityConfigured();
   const clientName = formData.get('clientName') as string;
   const feedback = formData.get('feedback') as string;
 

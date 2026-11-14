@@ -20,12 +20,10 @@ export default async function ProjectsList() {
 
   const getCategoryName = (cat: string) => {
     const names: Record<string, string> = {
+      fences: 'الشبوك',
+      palms: 'النخيل',
       shabouk: 'شبوك', 
       nakheel: 'نخيل', 
-      hanajer: 'هناجر', 
-      sawater: 'سواتر ومظلات', 
-      hajar: 'حجر', 
-      other: 'أخرى'
     };
     return names[cat] || 'عام';
   };

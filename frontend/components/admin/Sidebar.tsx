@@ -12,8 +12,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   FolderKanban,
-  Briefcase,
-  Users,
+  ImageIcon,
   Settings,
   LogOut,
   Menu,
@@ -22,11 +21,9 @@ import {
 
 const menuItems = [
   { name: "الرئيسية", icon: LayoutDashboard, href: "/admin/dashboard" },
-  { name: "المشاريع", icon: FolderKanban, href: "/admin/projects" },
-  // { name: "المعرض", icon: ImageIcon, href: "/admin/gallery" },
-  { name: "الخدمات", icon: Briefcase, href: "/admin/services" },
-  { name: "آراء العملاء", icon: Users, href: "/admin/testimonials" },
-  { name: "الإعدادات", icon: Settings, href: "/admin/settings" },
+  { name: "معرض الصور", icon: ImageIcon, href: "/admin/gallery" },
+  { name: "المشاريع والأعمال", icon: FolderKanban, href: "/admin/projects" },
+  { name: "إعدادات الموقع والصور", icon: Settings, href: "/admin/settings" },
 ];
 
 export default function Sidebar() {

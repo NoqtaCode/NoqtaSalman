@@ -1,59 +1,27 @@
 import Link from "next/link";
-import { ArrowRight, ImagePlus } from "lucide-react";
-import { uploadImages } from "../../../../actions/gallery";
-import UploadSubmitButton from "../../../../components/admin/UploadSubmitButton";
+import { ArrowRight } from "lucide-react";
+import GalleryUploadForm from "../../../../components/admin/GalleryUploadForm";
 
-export default async function NewGalleryUpload({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const { error } = await searchParams;
+export default async function NewGalleryUpload({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
+  const { category } = await searchParams;
+  const initialCategory = category === 'palms' ? 'palms' : category === 'theel' ? 'theel' : 'fences';
+
   return (
-    <div className="max-w-2xl mx-auto px-4 pb-20">
+    <div className="max-w-3xl mx-auto px-4 pb-20">
       <div className="flex items-center gap-4 mb-8 pt-4">
-        <Link href="/admin/gallery" className="bg-white p-3 rounded-xl border border-gray-200">
-          <ArrowRight size={24} />
+        <Link href="/admin/gallery" className="bg-white p-3 rounded-2xl border border-gray-200 text-slate-700 shadow-sm hover:bg-gray-50 transition">
+          <ArrowRight size={22} />
         </Link>
-        <h1 className="text-2xl font-bold text-slate-800">رفع صور للمعرض</h1>
+        <div>
+          <h1 className="text-2xl font-black text-slate-800">
+            رفع صور لمعرض وعرض {initialCategory === 'palms' ? 'النخيل' : initialCategory === 'theel' ? 'الثيل' : 'الشبوك'}
+          </h1>
+          <p className="text-xs text-slate-500 mt-1">حدد أي عدد من الصور دفعة واحدة وسيتم ربطها بالقسم وعرضها في الموقع تلقائياً</p>
+        </div>
       </div>
 
-      {error && <p role="alert" className="mb-5 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-bold leading-6 text-red-700">{error === 'category' ? 'اختر قسمًا صحيحًا قبل رفع الصور.' : error === 'files' ? 'اختر حتى 10 صور بصيغة صورة صحيحة.' : 'تعذر رفع الصور إلى قاعدة البيانات. تحقق من اتصال Sanity وصلاحية الرفع ثم حاول مرة أخرى.'}</p>}
-
-      <div className="bg-white rounded-3xl shadow-xl p-6 md:p-10 border border-gray-100">
-        <form action={uploadImages} className="space-y-8">
-          
-          {/* اختيار القسم */}
-          <div>
-            <label className="block text-sm font-black text-slate-700 mb-3">تصنيف الصور المرفوعة *</label>
-            <select name="category" required defaultValue="" className="w-full border-2 border-gray-100 rounded-2xl p-4 bg-gray-50/50 text-black outline-none focus:border-blue-500">
-              <option value="" disabled>-- اختر القسم --</option>
-              <option value="palms">النخيل</option>
-              <option value="fences">الشبوك</option>
-              <option value="trees">الأشجار</option>
-              <option value="olives">الزيتون</option>
-              <option value="structures">هناجر وسواتر</option>
-            </select>
-          </div>
-
-          {/* حقل اختيار صور متعددة */}
-          <div>
-            <label className="block text-sm font-black text-slate-700 mb-3">اختيار الصور (يمكنك اختيار أكثر من صورة) *</label>
-            <div className="relative border-2 border-dashed border-gray-200 rounded-3xl p-12 text-center bg-gray-50/30 hover:bg-gray-50 transition">
-              <input 
-                type="file" 
-                name="images" 
-                accept="image/*" 
-                multiple // <--- هذا السطر يسمح باختيار صور كثيرة
-                required 
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
-              />
-              <div className="text-gray-400">
-                 <ImagePlus size={48} className="mx-auto mb-4 text-blue-500" />
-                 <p className="font-bold text-slate-700">اضغط هنا واصبعك مطول لاختيار الصور</p>
-                 <p className="text-xs mt-1">يمكنك رفع حتى 10 صور في المرة الواحدة</p>
-              </div>
-            </div>
-          </div>
-
-          <UploadSubmitButton />
-        </form>
+      <div className="bg-white rounded-[2rem] shadow-xl p-6 md:p-10 border border-slate-100">
+        <GalleryUploadForm initialCategory={initialCategory} />
       </div>
     </div>
   );

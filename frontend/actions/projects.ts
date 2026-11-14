@@ -4,18 +4,17 @@
 // Projects Server Actions
 // ============================================================
 
-import { client } from "../lib/sanity";
+import { assertSanityConfigured, client } from "../lib/sanity";
 import { revalidatePath } from "next/cache";
 
 // Each request is kept small; the client sends as many batches as needed.
 export async function createProjectBatch(formData: FormData): Promise<{ createdIndices: number[]; error?: string }> {
+  assertSanityConfigured();
   const title = formData.get('title') as string;
   const selectedCategory = formData.get('category') as string;
   const legacyCategoryMap: Record<string, string> = {
     nakheel: 'palms',
     shabouk: 'fences',
-    hanajer: 'structures',
-    sawater: 'structures',
   };
   const category = legacyCategoryMap[selectedCategory] || selectedCategory;
   const imageFiles = (formData.getAll('image') as File[]).filter((file) => file.size > 0);
@@ -25,11 +24,11 @@ export async function createProjectBatch(formData: FormData): Promise<{ createdI
   if (!title || !category || imageFiles.length === 0) {
     return { createdIndices: [], error: 'أدخل عنوان المشروع واختر القسم وصورة واحدة على الأقل.' };
   }
-  if (!['palms', 'fences', 'trees', 'olives', 'structures', 'hajar', 'other'].includes(category)) {
+  if (!['palms', 'fences', 'theel'].includes(category)) {
     return { createdIndices: [], error: 'اختر قسمًا صحيحًا للمشروع.' };
   }
-  if (imageFiles.some((file) => !['image/jpeg', 'image/png', 'image/webp'].includes(file.type))) {
-    return { createdIndices: [], error: 'استخدم صور JPG أو PNG أو WebP.' };
+  if (imageFiles.some((file) => file.size === 0 || (!file.type.startsWith('image/') && !/\.(jpe?g|png|webp|heic|avif)$/i.test(file.name)))) {
+    return { createdIndices: [], error: 'يرجى التأكد من رفع ملفات صور صحيحة.' };
   }
   if (imageIndices.length !== imageFiles.length || imageIndices.some((index) => !Number.isInteger(index) || index < 0 || index >= totalCount)) {
     return { createdIndices: [], error: 'تعذر قراءة ترتيب الصور. أعد المحاولة.' };
@@ -86,8 +85,11 @@ export async function createProjectBatch(formData: FormData): Promise<{ createdI
 }
 
 export async function updateProject(id: string, formData: FormData) {
+  assertSanityConfigured();
   const title = formData.get('title') as string;
-  const category = formData.get('category') as string;
+  const selectedCategory = formData.get('category') as string;
+  const category = selectedCategory === 'shabouk' ? 'fences' : selectedCategory === 'nakheel' ? 'palms' : selectedCategory;
+  if (!['palms', 'fences', 'theel'].includes(category)) return { success: false };
   const status = formData.get('status') as string;
   const imageFile = formData.get('image') as File;
 
@@ -115,6 +117,7 @@ export async function updateProject(id: string, formData: FormData) {
 }
 
 export async function deleteProject(id: string) {
+  assertSanityConfigured();
   try {
     await client.delete(id);
     revalidatePath('/admin/projects');
@@ -127,12 +130,14 @@ export async function deleteProject(id: string) {
 
 // دالة إنشاء مشروع مفردة (من dashboard)
 export async function createProject(formData: FormData) {
+  assertSanityConfigured();
   const title = formData.get('title') as string;
   const description = formData.get('description') as string;
-  const category = formData.get('category') as string;
+  const selectedCategory = formData.get('category') as string;
+  const category = selectedCategory === 'shabouk' ? 'fences' : selectedCategory === 'nakheel' ? 'palms' : selectedCategory;
   const imageFile = formData.get('image') as File;
 
-  if (!title || !imageFile || !category) {
+  if (!title || !imageFile || !['palms', 'fences', 'theel'].includes(category)) {
     return { success: false, message: "الرجاء تعبئة العنوان والصورة واختيار القسم" };
   }
 

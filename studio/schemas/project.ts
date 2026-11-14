@@ -11,21 +11,16 @@ export default defineType({
       type: 'string',
       validation: (rule) => rule.required(),
     }),
-    // 👇👇 حقل الأقسام (هام جداً لتقسيم الموقع) 👇👇
     defineField({
       name: 'category',
       title: 'القسم (نوع العمل)',
       type: 'string',
       options: {
         list: [
-          { title: 'أعمال الشبوك والمزارع', value: 'shabouk' },
-          { title: 'تنسيق حدائق ونخيل', value: 'nakheel' },
-          { title: 'الهناجر والمستودعات', value: 'hanajer' },
-          { title: 'السواتر والمظلات', value: 'sawater' },
-          { title: 'أعمال الحجر الطبيعي', value: 'hajar' },
-          { title: 'خدمات أخرى', value: 'other' },
+          { title: 'الشبوك', value: 'fences' },
+          { title: 'النخيل', value: 'palms' },
         ],
-        layout: 'radio' // ستظهر كأزرار اختيار
+        layout: 'radio'
       },
       validation: (rule) => rule.required(),
     }),

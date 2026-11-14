@@ -1,64 +1,39 @@
-export const BRAND_NAME = "سياج ونخيل المملكة";
+export const BRAND_NAME = "الشبوك والنخيل";
 
 export const BRAND_DESCRIPTION =
-  "حلول متكاملة للنخيل، الشبوك، الأشجار، الزيتون، والهناجر والسواتر في المملكة العربية السعودية.";
-
-export const CONTACT = {
-  phoneDisplay: "0556543394",
-  phoneLink: "+966556543394",
-  whatsapp: "966556543394",
-  email: "hatmrwys1@gmail.com",
-};
+  "حلول متخصصة في تركيب الشبوك وتوريد وزراعة النخيل، من التخطيط للموقع حتى اكتمال التنفيذ.";
 
 export const categories = [
   {
-    slug: "palms",
-    title: "النخيل",
-    eyebrow: "نزرع الحياة",
-    description: "توريد وزراعة النخيل بعناية، من اختيار الفسيلة حتى اكتمال المشهد.",
-    image: "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?q=85&w=1400&auto=format&fit=crop",
-    imageAlt: "نخيل في مزرعة سعودية",
-  },
-  {
     slug: "fences",
     title: "الشبوك",
-    eyebrow: "حماية تدوم",
-    description: "تسوير للمزارع والأراضي بحلول عملية تجمع المتانة وحسن التنفيذ.",
-    image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=85&w=1400&auto=format&fit=crop",
-    imageAlt: "أرض زراعية واسعة",
+    eyebrow: "حماية تحدد المساحة",
+    description: "حلول شبوك تناسب حدود الأرض وطبيعة استخدامها، بتنفيذ مرتب وتفاصيل واضحة.",
+    image: "https://images.unsplash.com/photo-1745100671491-ce4e0b638d24?auto=format&fit=crop&w=1600&q=85",
+    imageAlt: "شبك معدني يحدد حدود أرض مفتوحة",
   },
   {
-    slug: "trees",
-    title: "الأشجار",
-    eyebrow: "مساحات أكثر خضرة",
-    description: "اختيار الأشجار وتنسيقها لتصنع ظلالًا ومشهدًا طبيعيًا متوازنًا.",
-    image: "https://images.unsplash.com/photo-1448375240586-882707db888b?q=85&w=1400&auto=format&fit=crop",
-    imageAlt: "أشجار خضراء",
+    slug: "palms",
+    title: "النخيل",
+    eyebrow: "زراعة تنمو مع أرضك",
+    description: "توريد وزراعة النخيل مع تنسيق المساحات واختيار ما يناسب طبيعة الأرض.",
+    image: "https://images.unsplash.com/photo-1723482490939-528fc0d110fb?auto=format&fit=crop&w=1800&q=85",
+    imageAlt: "صفوف من أشجار النخيل في حقل زراعي",
   },
   {
-    slug: "olives",
-    title: "الزيتون",
-    eyebrow: "جذور أصيلة",
-    description: "زراعة أشجار الزيتون والعناية بها لتمنح المزرعة قيمة وجمالًا.",
-    image: "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?q=85&w=1400&auto=format&fit=crop",
-    imageAlt: "أشجار في ضوء الصباح",
-  },
-  {
-    slug: "structures",
-    title: "هناجر وسواتر",
-    eyebrow: "مساحة تخدمك",
-    description: "هناجر وسواتر مصممة للاستخدام اليومي، بتنفيذ يواكب احتياج موقعك.",
-    image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=85&w=1400&auto=format&fit=crop",
-    imageAlt: "أعمال إنشاء وتجهيز",
+    slug: "theel",
+    title: "الثيل",
+    eyebrow: "خضرة تكسو أرضك",
+    description: "توريد وتركيب الثيل الطبيعي والصناعي لتنسيق الحدائق والمساحات الخضراء بأجمل صورة.",
+    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1600&q=85",
+    imageAlt: "مساحة خضراء مكسوة بالعشب والثيل",
   },
 ] as const;
 
 export const sanityCategoryValues: Record<string, string[]> = {
-  palms: ["palms", "nakheel"],
   fences: ["fences", "shabouk"],
-  trees: ["trees"],
-  olives: ["olives"],
-  structures: ["structures", "hanajer", "sawater"],
+  palms: ["palms", "nakheel"],
+  theel: ["theel"],
 };
 
 export function getCategory(slug: string) {

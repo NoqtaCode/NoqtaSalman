@@ -1,68 +1,163 @@
 import Link from "next/link";
-import { ArrowLeft, ArrowUpLeft, Clock3, Mail, MapPin, MessageCircle, Phone, Sprout } from "lucide-react";
+import { ArrowLeft, ArrowUpLeft, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import SiteNavbar from "../../components/layout/SiteNavbar";
 import Footer from "../../components/layout/Footer";
-import { CONTACT } from "../../lib/brand";
-import { getSiteName } from "../../lib/site-settings";
+import { getPublicSiteSettings, getSiteName } from "../../lib/site-settings";
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const siteName = await getSiteName();
-  return {
-    title: "تواصل معنا",
-    description: `تواصل مع ${siteName} لمناقشة مشروعك الزراعي أو الإنشائي.`,
+  const [siteName, settings] = await Promise.all([getSiteName(), getPublicSiteSettings()]);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://nakheel-seyaj.com";
+  return { 
+    title: `اتصل بنا | طلب عرض سعر تركيب شبوك وتوريد نخيل | ${siteName}`, 
+    description: `تواصل مع ${siteName} لطلب معاينة ميدانية لموقعك وعرض سعر فوري لتسوير المزارع والأراضي بالشبوك المجلفنة أو توريد وزراعة النخيل في السعودية.`,
+    alternates: {
+      canonical: `${siteUrl}/contact`,
+    },
+    openGraph: {
+      title: `اتصل بنا | طلب عرض سعر تركيب شبوك وتوريد نخيل | ${siteName}`,
+      description: `تواصل فوري عبر الواتساب والاتصال الهاتفي لمعاينة الموقع وطلب عروض الأسعار.`,
+      url: `${siteUrl}/contact`,
+    }
   };
 }
 
 export default async function ContactPage() {
-  const siteName = await getSiteName();
+  const [siteName, settings] = await Promise.all([getSiteName(), getPublicSiteSettings()]);
+  const contact = settings;
+  const phone = contact.phone || "0502237446";
+  const phoneLink = phone.replace(/[^\d+]/g, "");
+  const rawWhatsapp = (contact.whatsapp || phone || "0502237446").replace(/\D/g, "");
+  const waNumber = rawWhatsapp.startsWith("05")
+    ? `966${rawWhatsapp.slice(1)}`
+    : rawWhatsapp.startsWith("5")
+    ? `966${rawWhatsapp}`
+    : rawWhatsapp;
+
   return (
-    <div className="min-h-screen bg-[#f7f5ef] text-[#172638]" dir="rtl">
+    <div className="min-h-screen bg-[#f7f9f6] text-[#0d231b]" dir="rtl">
       <SiteNavbar />
-      <main className="mx-auto max-w-[1440px] px-6 pb-24 pt-32 sm:px-10 sm:pt-40">
-        <section className="relative isolate overflow-hidden rounded-[2rem] bg-[#0b2036] px-6 py-12 text-white sm:px-12 sm:py-16 lg:px-16 lg:py-20">
-          <div className="absolute -left-24 -top-36 -z-10 h-[30rem] w-[30rem] rounded-full bg-[#f2c46d]/10 blur-[100px]" />
-          <div className="grid gap-12 lg:grid-cols-[1fr_0.75fr] lg:items-end">
-            <div>
-              <span className="mb-5 inline-flex items-center gap-2 text-xs font-black tracking-[0.16em] text-[#f2c46d]"><Sprout size={16} /> نبدأ من فكرتك</span>
-              <h1 className="max-w-3xl text-4xl font-black leading-tight sm:text-6xl">كل مشروع كبير،<br /><span className="text-[#f2c46d]">يبدأ بسؤال.</span></h1>
-              <p className="mt-6 max-w-xl text-base leading-8 text-white/65 sm:text-lg sm:leading-9">أخبرنا عن أرضك أو احتياجك، وسنساعدك على تحديد المجال والخطوة الأنسب لمشروعك.</p>
-              <Link href="/services" className="mt-8 inline-flex min-h-14 items-center gap-3 rounded-full bg-[#f2c46d] px-7 text-sm font-black text-[#0b2036] transition hover:bg-white">اختر مجال مشروعك <ArrowLeft size={18} /></Link>
+      <main className="mx-auto max-w-[1400px] px-5 pb-20 pt-32 sm:px-9 sm:pt-40 lg:px-14">
+        <section className="grid gap-7 lg:grid-cols-[1fr_0.85fr] lg:items-center lg:gap-14">
+          <div className="py-5">
+            <span className="inline-flex items-center gap-2 rounded-full bg-[#eaf1df] px-4 py-2 text-xs font-black text-[#688747]">
+              {settings.contactLabel || "تواصل معنا"} <span className="h-1.5 w-1.5 rounded-full bg-[#8cb052]" />
+            </span>
+            <h1 className="mt-5 text-4xl font-black leading-tight sm:text-6xl text-[#0d231b]">
+              {settings.contactTitle || "كل مشروع يبدأ بحديث بسيط."}
+            </h1>
+            <p className="mt-5 max-w-xl text-sm leading-8 text-[#58695e] sm:text-base">
+              {settings.contactDescription || "أخبرنا عن أرضك واحتياجك من الشبوك أو النخيل أو الثيل، ونرتب معك أفضل بداية بالمعاينة وعرض السعر المناسب."}
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link href="/projects/fences" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-bold shadow-sm ring-1 ring-[#e5ece1] hover:ring-[#dca842] transition">
+                {settings.contactFencesLabel || settings.fencesTitle || "معرض الشبوك"} <ArrowLeft size={14} />
+              </Link>
+              <Link href="/projects/palms" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-bold shadow-sm ring-1 ring-[#e5ece1] hover:ring-[#dca842] transition">
+                {settings.contactPalmsLabel || settings.palmsTitle || "معرض النخيل"} <ArrowLeft size={14} />
+              </Link>
+              <Link href="/projects/theel" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-bold shadow-sm ring-1 ring-[#e5ece1] hover:ring-[#dca842] transition">
+                {settings.theelTitle || "معرض الثيل"} <ArrowLeft size={14} />
+              </Link>
             </div>
-            <div className="relative overflow-hidden rounded-[1.75rem] border border-white/15 bg-gradient-to-br from-white/[0.1] to-white/[0.035] p-6 shadow-2xl shadow-black/15 backdrop-blur sm:p-8">
-              <div className="pointer-events-none absolute -left-12 -top-16 h-44 w-44 rounded-full bg-[#f2c46d]/10 blur-3xl" />
-              <span className="text-xs font-bold tracking-[0.16em] text-[#f2c46d]">{siteName}</span>
-              <h2 className="mt-4 text-2xl font-black leading-snug sm:text-3xl">نحن جاهزون لسماع فكرتك.</h2>
-              <p className="mt-4 text-sm leading-7 text-white/60">اختر الخدمة التي تهمك، وجهّز وصفًا بسيطًا للموقع والمساحة حتى نساعدك بصورة أوضح.</p>
-              <div className="relative mt-7 grid gap-3 border-t border-white/10 pt-6 sm:grid-cols-2">
-                <a href={`https://wa.me/${CONTACT.whatsapp}`} target="_blank" rel="noreferrer" className="group flex min-h-[90px] items-center gap-3 rounded-2xl border border-emerald-300/20 bg-emerald-400/[0.08] p-4 transition hover:-translate-y-0.5 hover:border-emerald-300/45 hover:bg-emerald-400/[0.13] sm:col-span-2">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-400/15 text-emerald-300"><MessageCircle size={22} /></span>
-                  <span className="min-w-0 flex-1"><span className="block text-xs font-bold text-emerald-200">واتساب</span><span dir="ltr" className="mt-1 block text-lg font-black text-white">{CONTACT.phoneDisplay}</span><span className="mt-1 block text-xs text-white/50">راسلنا مباشرة</span></span>
-                  <ArrowUpLeft size={18} className="shrink-0 text-emerald-200 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                </a>
-                <a href={`tel:${CONTACT.phoneLink}`} className="group flex min-h-[90px] items-center gap-3 rounded-2xl border border-white/10 bg-[#071827]/35 p-4 transition hover:-translate-y-0.5 hover:border-[#f2c46d]/40 hover:bg-white/[0.08]">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#f2c46d]/10 text-[#f2c46d]"><Phone size={19} /></span>
-                  <span className="min-w-0"><span className="block text-xs font-bold text-white/55">اتصال مباشر</span><span dir="ltr" className="mt-1 block font-black text-white">{CONTACT.phoneDisplay}</span></span>
-                </a>
-                <a href={`mailto:${CONTACT.email}`} className="group flex min-h-[90px] items-center gap-3 rounded-2xl border border-white/10 bg-[#071827]/35 p-4 transition hover:-translate-y-0.5 hover:border-[#f2c46d]/40 hover:bg-white/[0.08]">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#f2c46d]/10 text-[#f2c46d]"><Mail size={19} /></span>
-                  <span className="min-w-0"><span className="block text-xs font-bold text-white/55">البريد الإلكتروني</span><span className="mt-1 block break-all text-sm font-black text-white">{CONTACT.email}</span></span>
-                </a>
-                <a href="https://maps.google.com/?q=Riyadh,Saudi+Arabia" target="_blank" rel="noreferrer" className="flex min-h-[76px] items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition hover:border-[#f2c46d]/35 hover:bg-white/[0.07]">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#f2c46d]/10 text-[#f2c46d]"><MapPin size={18} /></span>
-                  <span><span className="block text-[11px] font-bold text-white/50">موقعنا</span><span className="mt-1 block text-sm font-bold text-white">الرياض، المملكة العربية السعودية</span></span>
-                </a>
-                <div className="flex min-h-[76px] items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#f2c46d]/10 text-[#f2c46d]"><Clock3 size={18} /></span>
-                  <span><span className="block text-[11px] font-bold text-white/50">ساعات التواصل</span><span className="mt-1 block text-sm font-bold text-white">متاحون على مدار 24 ساعة</span></span>
+          </div>
+
+          <div className="relative overflow-hidden rounded-[2.5rem] bg-[#0d231b] p-6 text-white shadow-[0_25px_70px_rgba(13,35,27,0.25)] sm:p-9 border border-white/10">
+            <div className="absolute -left-10 -top-16 h-48 w-48 rounded-full bg-[#dca842]/15 blur-2xl" />
+            <div className="relative">
+              <span className="text-xs font-bold text-[#dca842]">{siteName}</span>
+              <h2 className="mt-2 text-2xl font-black sm:text-3xl text-white">
+                {settings.contactPanelTitle || "نحن جاهزون لسماع فكرتك."}
+              </h2>
+              <p className="mt-2.5 text-sm leading-7 text-white/80">
+                {settings.contactPanelDescription || "تواصل معنا مباشرة عبر القناة الأنسب لك لتحديد موعد المعاينة أو طلب عرض السعر:"}
+              </p>
+            </div>
+
+            {/* بطاقات الواتساب والاتصال الفاخرة بدون إظهار الأرقام كنص خام */}
+            <div className="relative mt-8 flex flex-col gap-3.5">
+              {/* كارت محادثة الواتساب الفاخر */}
+              <a 
+                href={`https://wa.me/${waNumber}?text=${encodeURIComponent("السلام عليكم ورحمة الله، أود الاستفسار عن خدمات الشبوك والنخيل")}`}
+                target="_blank" 
+                rel="noreferrer" 
+                className="group relative flex items-center justify-between overflow-hidden rounded-2xl bg-gradient-to-r from-[#25D366] to-[#1ebe5d] p-5 text-white shadow-[0_12px_30px_rgba(37,211,102,0.3)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(37,211,102,0.45)] active:scale-98"
+              >
+                <div className="flex items-center gap-4">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/20 text-white backdrop-blur-md shadow-inner transition group-hover:scale-110">
+                    <MessageCircle size={26} />
+                  </span>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base font-black">محادثة واتساب سريعة</h3>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-white/25 px-2 py-0.5 text-[10px] font-bold text-white">
+                        <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" /> متاح الآن
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-white/90 font-medium">
+                      استفسار فوري وتحديد موعد المعاينة وعروض الأسعار
+                    </p>
+                  </div>
                 </div>
-              </div>
+
+                <span className="hidden sm:inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20 text-white transition group-hover:bg-white group-hover:text-[#25D366]">
+                  <ArrowUpLeft size={18} />
+                </span>
+              </a>
+
+              {/* كارت الاتصال الهاتفي المباشر الفاخر */}
+              <a 
+                href={`tel:${phoneLink}`}
+                className="group relative flex items-center justify-between overflow-hidden rounded-2xl border border-[#dca842]/40 bg-gradient-to-r from-[#0d231b] via-[#143529] to-[#0d231b] p-5 text-white shadow-[0_12px_30px_rgba(13,35,27,0.3)] transition-all duration-300 hover:-translate-y-1 hover:border-[#dca842] hover:shadow-[0_16px_36px_rgba(220,168,66,0.25)] active:scale-98"
+              >
+                <div className="flex items-center gap-4">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#dca842]/20 text-[#dca842] border border-[#dca842]/30 backdrop-blur-md transition group-hover:scale-110 group-hover:bg-[#dca842] group-hover:text-[#0d231b]">
+                    <Phone size={24} />
+                  </span>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base font-black">اتصال هاتفي مباشر</h3>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-[#dca842]/20 text-[#dca842] px-2 py-0.5 text-[10px] font-bold">
+                        خدمة العملاء
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-white/75 font-medium">
+                      تواصل مباشر لمناقشة أبعاد موقعك والمواصفات
+                    </p>
+                  </div>
+                </div>
+
+                <span className="hidden sm:inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-[#dca842] transition group-hover:bg-[#dca842] group-hover:text-[#0d231b]">
+                  <ArrowUpLeft size={18} />
+                </span>
+              </a>
+
+              {/* البريد الإلكتروني والعنوان إن وجدا */}
+              {(contact.email || contact.address) && (
+                <div className="mt-2 flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/5 p-4 text-xs font-bold text-white/80">
+                  {contact.email && (
+                    <a href={`mailto:${contact.email}`} className="flex items-center gap-3 transition hover:text-[#dca842]">
+                      <Mail size={16} className="text-[#dca842]" />
+                      <span>{contact.email}</span>
+                    </a>
+                  )}
+                  {contact.address && (
+                    <div className="flex items-center gap-3">
+                      <MapPin size={16} className="text-[#dca842]" />
+                      <span>{contact.address}</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </section>
-        <div className="mt-8 flex flex-col justify-between gap-4 text-sm text-[#72796c] sm:flex-row sm:items-center">
-          <span>هل تود رؤية المجالات أولًا؟</span>
-          <Link href="/services" className="inline-flex items-center gap-2 font-black text-[#26384a] hover:text-[#738093]">تصفّح الخدمات <ArrowUpLeft size={17} /></Link>
+
+        <div className="mt-10 flex flex-col justify-between gap-4 border-t border-[#dfe7dc] pt-5 text-xs font-bold text-[#879387] sm:flex-row sm:items-center">
+          <span>{siteName}</span>
+          <Link href="/" className="inline-flex items-center gap-2 hover:text-[#55733c]">
+            {settings.navHomeLabel || "العودة للرئيسية"} <ArrowUpLeft size={14} />
+          </Link>
         </div>
       </main>
       <Footer />

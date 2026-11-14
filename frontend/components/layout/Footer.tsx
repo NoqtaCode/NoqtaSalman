@@ -1,72 +1,126 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpLeft, Code2, Mail, MessageCircle, Phone } from "lucide-react";
-import { BRAND_DESCRIPTION, CONTACT, categories } from "../../lib/brand";
-import { getSiteName } from "../../lib/site-settings";
+import { ArrowUpLeft, Code2, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { categories } from "../../lib/brand";
+import { getPublicSiteSettings } from "../../lib/site-settings";
 
 export default async function Footer() {
-  const siteName = await getSiteName();
+  const settings = await getPublicSiteSettings();
+  const siteName = settings.siteName || "الشبوك والنخيل";
+  const contact = settings;
+  const phone = contact.phone || "0502237446";
+  const phoneLink = phone.replace(/[^\d+]/g, "");
+  const rawWhatsapp = (contact.whatsapp || phone || "0502237446").replace(/\D/g, "");
+  const waNumber = rawWhatsapp.startsWith("05")
+    ? `966${rawWhatsapp.slice(1)}`
+    : rawWhatsapp.startsWith("5")
+    ? `966${rawWhatsapp}`
+    : rawWhatsapp;
+
   return (
-    <footer className="bg-[#071827] text-white" dir="rtl">
-      <div className="mx-auto grid max-w-[1440px] gap-10 px-6 py-16 md:grid-cols-2 md:px-10 lg:grid-cols-[1.25fr_0.8fr_0.8fr_1.15fr] lg:gap-12 lg:py-20">
+    <footer className="bg-[#0e271f] text-white" dir="rtl">
+      <div className="mx-auto grid max-w-[1400px] gap-10 px-5 py-12 sm:px-9 sm:py-16 md:grid-cols-2 lg:grid-cols-[1.2fr_0.7fr_1fr] lg:px-14">
         <div className="max-w-md">
-          <Link href="/" className="mb-6 inline-flex items-center gap-3">
-            <span className="relative flex h-14 w-14 shrink-0 items-center justify-center">
-              <Image src="/site-logo.png" alt={`شعار ${siteName}`} fill unoptimized sizes="56px" className="object-contain" />
-            </span>
-            <span className="text-xl font-black">{siteName}</span>
+          <Link href="/" className="mb-5 inline-flex items-center gap-3 group" aria-label={siteName}>
+            {settings.logoImageUrl ? (
+              <div className="relative h-12 w-32 sm:h-14 sm:w-40 shrink-0 transition-transform duration-300 group-hover:scale-105">
+                <Image
+                  src={settings.logoImageUrl}
+                  alt={`شعار ${siteName}`}
+                  fill
+                  unoptimized
+                  sizes="(max-width: 640px) 130px, 160px"
+                  className="object-contain object-right drop-shadow-md"
+                />
+              </div>
+            ) : (
+              <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-[#dca842] text-[#0d231b]">
+                <span className="text-lg font-black">ش</span>
+              </span>
+            )}
+            <span className="text-lg sm:text-xl font-black">{siteName}</span>
           </Link>
-          <p className="mb-7 text-sm leading-8 text-white/55">{BRAND_DESCRIPTION}</p>
-          <Link href="/contact" className="inline-flex items-center gap-2 text-sm font-bold text-[#f2c46d] transition hover:text-white">
-            تحدّث معنا عن مشروعك <ArrowUpLeft size={17} />
-          </Link>
+          <p className="max-w-sm text-sm leading-7 text-white/75">{settings.footerDescription || "حلول متخصصة في تركيب الشبوك وتوريد وزراعة النخيل، من التخطيط للموقع حتى اكتمال التنفيذ."}</p>
+          <Link href="/contact" className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#dca842] hover:text-white transition">{settings.footerCtaLabel || "ابدأ الحديث عن مشروعك"} <ArrowUpLeft size={16} /></Link>
         </div>
 
         <div>
-          <h2 className="mb-5 text-sm font-black text-white">مجالاتنا</h2>
-          <ul className="space-y-3 text-sm text-white/55">
+          <h2 className="mb-4 text-xs font-black text-white/55">روابط سريعة</h2>
+          <ul className="space-y-3 text-sm font-bold text-white/75">
+            <li><Link href="/services" className="transition hover:text-[#dca842]">خدماتنا المتخصصة</Link></li>
+            <li><Link href="/about" className="transition hover:text-[#dca842]">من نحن</Link></li>
+            <li><Link href="/gallery" className="transition hover:text-[#dca842]">معرض الأعمال</Link></li>
             {categories.map((category) => (
-              <li key={category.slug}><Link href={`/projects/${category.slug}`} className="transition hover:text-[#f2c46d]">{category.title}</Link></li>
+              <li key={category.slug}>
+                <Link href={`/projects/${category.slug}`} className="transition hover:text-[#dca842]">
+                  {category.slug === "fences" ? settings.fencesTitle || category.title : category.slug === "palms" ? settings.palmsTitle || category.title : settings.theelTitle || category.title}
+                </Link>
+              </li>
             ))}
           </ul>
         </div>
 
         <div>
-          <h2 className="mb-5 text-sm font-black text-white">روابط سريعة</h2>
-          <ul className="space-y-3 text-sm text-white/55">
-            <li><Link href="/about" className="transition hover:text-[#f2c46d]">قصتنا</Link></li>
-            <li><Link href="/services" className="transition hover:text-[#f2c46d]">الخدمات</Link></li>
-            <li><Link href="/gallery" className="transition hover:text-[#f2c46d]">دليل تجهيز أرضك</Link></li>
-            <li><Link href="/contact" className="transition hover:text-[#f2c46d]">تواصل معنا</Link></li>
-          </ul>
-        </div>
+          <h2 className="mb-4 text-xs font-black text-white/55">{settings.footerContactLabel || "تواصل معنا"}</h2>
+          <div className="flex flex-col gap-2.5">
+            <a 
+              href={`https://wa.me/${waNumber}?text=${encodeURIComponent("السلام عليكم ورحمة الله، أود الاستفسار عن خدماتكم")}`} 
+              target="_blank" 
+              rel="noreferrer" 
+              className="group inline-flex items-center justify-between gap-3 rounded-xl bg-[#25D366] px-4 py-3 text-xs font-black text-white shadow-sm transition-all duration-300 hover:brightness-110 hover:shadow-[0_4px_16px_rgba(37,211,102,0.35)] active:scale-95"
+            >
+              <span className="flex items-center gap-2.5">
+                <MessageCircle size={17} />
+                <span>{settings.contactWhatsAppLabel || "تواصل عبر واتساب"}</span>
+              </span>
+              <ArrowUpLeft size={14} className="transition-transform group-hover:-translate-x-0.5 group-hover:-translate-y-0.5" />
+            </a>
 
-        <div>
-          <h2 className="mb-5 text-sm font-black text-white">تواصل معنا</h2>
-          <ul className="space-y-4 text-sm text-white/60">
-            <li><a href={`tel:${CONTACT.phoneLink}`} className="inline-flex items-center gap-3 transition hover:text-[#f2c46d]"><Phone size={16} /> <span dir="ltr">{CONTACT.phoneDisplay}</span></a></li>
-            <li><a href={`mailto:${CONTACT.email}`} className="inline-flex items-center gap-3 transition hover:text-[#f2c46d]"><Mail size={16} /> {CONTACT.email}</a></li>
-            <li><a href={`https://wa.me/${CONTACT.whatsapp}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 rounded-full bg-[#f2c46d] px-4 py-3 font-black text-[#0b2036] transition hover:bg-white"><MessageCircle size={17} /> راسلنا واتساب</a></li>
-          </ul>
+            <a 
+              href={`tel:${phoneLink}`} 
+              className="group inline-flex items-center justify-between gap-3 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-xs font-black text-white backdrop-blur-sm transition-all duration-300 hover:border-[#dca842] hover:bg-white/15 hover:text-[#dca842] active:scale-95"
+            >
+              <span className="flex items-center gap-2.5">
+                <Phone size={16} className="text-[#dca842]" />
+                <span>{settings.contactPhoneLabel || "اتصال هاتفي مباشر"}</span>
+              </span>
+              <ArrowUpLeft size={14} className="transition-transform group-hover:-translate-x-0.5 group-hover:-translate-y-0.5" />
+            </a>
+
+            {contact.email && (
+              <a href={`mailto:${contact.email}`} className="inline-flex items-center gap-2 text-xs font-bold text-white/70 hover:text-[#dca842] transition pt-1">
+                <Mail size={14} /> {contact.email}
+              </a>
+            )}
+            {contact.address && (
+              <div className="inline-flex items-center gap-2 text-xs font-bold text-white/70 pt-1">
+                <MapPin size={14} /> {contact.address}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="border-t border-white/10 px-6 py-5 md:px-10">
-        <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-4 text-xs text-white/40 sm:flex-row sm:items-center">
-          <span className="sm:flex-1">© {new Date().getFullYear()} {siteName}. جميع الحقوق محفوظة.</span>
-          <span className="sm:flex-1 sm:text-center">من الأرض… نصنع أثرًا يدوم.</span>
+      <div className="border-t border-white/10 px-5 py-5 sm:px-9 lg:px-14 pb-28 sm:pb-6">
+        <div className="mx-auto flex max-w-[1400px] flex-col items-center justify-between gap-4 text-xs text-white/65 sm:flex-row">
+          <span>© {new Date().getFullYear()} {siteName}. جميع الحقوق محفوظة.</span>
+          <span className="hidden md:inline-block">{settings.footerTagline || "الشبوك والنخيل — عناية تبدأ من الأرض."}</span>
+          
+          {/* شارة تصميم وتطوير NoqtaCode مع الرقم ورابط مباشر للواتساب */}
           <a
             href="https://wa.me/967737543563"
             target="_blank"
             rel="noreferrer"
-            aria-label="تواصل مع نقطة كود عبر واتساب"
-            className="group inline-flex w-fit items-center gap-3 rounded-full border border-emerald-300/20 bg-emerald-950/50 px-3 py-2 text-emerald-300 transition hover:border-emerald-300/50 hover:bg-emerald-900/60 sm:flex-1 sm:justify-end"
+            aria-label="تواصل مع نقطة كود عبر واتساب 967737543563"
+            className="group inline-flex items-center gap-2.5 rounded-full bg-black/40 border border-white/15 px-3.5 py-1.5 shadow-inner transition-all duration-300 hover:border-[#25D366]/60 hover:bg-black/60 hover:scale-105"
           >
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1.5 text-sm font-black tracking-tight text-white">
-              <Code2 size={16} className="text-amber-400" />
-              <span>Noqta<span className="text-amber-400">Code</span></span>
+            <span className="text-[#10b981] font-bold text-xs">تطوير وتصميم</span>
+            <span className="inline-flex items-center gap-1">
+              <span className="font-mono font-black text-[#f97316] text-xs tracking-tight">&lt;/&gt;</span>
+              <span className="font-bold text-white text-xs">Noqta</span>
+              <span className="font-bold text-[#f97316] text-xs">Code</span>
             </span>
-            <span className="font-bold">تطوير وتصميم</span>
+            <MessageCircle size={13} className="text-[#25D366] shrink-0 group-hover:scale-110 transition-transform" />
           </a>
         </div>
       </div>

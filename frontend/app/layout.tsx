@@ -1,46 +1,66 @@
-﻿import type { Metadata } from "next";
-import { Cairo } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import Script from "next/script";
-import { BRAND_DESCRIPTION } from "../lib/brand";
-import { safeFetchFresh } from "../lib/sanity";
-import { getSiteName } from "../lib/site-settings";
+import { BRAND_DESCRIPTION, BRAND_NAME, categories } from "../lib/brand";
+import { getPublicSiteSettings, getSiteName } from "../lib/site-settings";
+import FloatingActions from "../components/ui/FloatingActions";
 import "./globals.css";
 
-const cairo = Cairo({ 
+const arabicFont = IBM_Plex_Sans_Arabic({
   subsets: ["arabic"],
-  weight: ["300", "400", "600", "700", "900"],
-  variable: "--font-cairo",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-arabic",
 });
 
+export const dynamic = "force-dynamic";
+
+export const viewport: Viewport = {
+  themeColor: "#173a31",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export async function generateMetadata(): Promise<Metadata> {
-  const siteName = await getSiteName();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.nakheel-seyaj.com";
-  const description = BRAND_DESCRIPTION;
-  const shareImage = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=85&w=1200&h=630&fit=crop";
-  const logo = await safeFetchFresh<{ logoImageUrl?: string }>(
-    `*[_type == "settings"][0]{"logoImageUrl": logo.asset->url}`,
-    {},
-  );
-  const siteIcon = logo?.logoImageUrl || "/site-logo.png";
+  const settings = await getPublicSiteSettings();
+  const siteName = settings.siteName?.trim() || BRAND_NAME;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nakheel-seyaj.com";
+  const description = settings.description?.trim() || 
+    "مؤسسة متخصصة في تركيب شبوك المزارع والأراضي، الشبوك الأمنية والشائكة، وتوريد وزراعة أرقى سلالات نخيل التمور ونخيل الواشنطونيا للقصور والمشاريع بأعلى جودة وضمان في السعودية.";
+  const shareImage = settings.heroImageUrl || categories[0].image;
+  const siteIcon = settings.logoImageUrl || "/favicon.ico";
+
+  const keywords = [
+    // كلمات الشبوك والتسوير
+    "تركيب شبوك", "شبوك مزارع", "تسوير أراضي", "شبوك زراعية", "شبوك أمنية", "شبوك شايكة", "سياج مزارع",
+    "مقاول شبوك", "مقاول شبوك الرياض", "شبوك مجلفنة", "أسعار تركيب الشبوك", "بوابات شبوك", "شبوك كسارات",
+    "شبوك خيول", "شبوك محميات", "تسوير مخططات", "سياج أمني", "تركيب شبك مزارع", "تسوير مزارع الرياض",
+    // كلمات النخيل والزراعة
+    "توريد نخيل", "زراعة نخيل", "غرس نخيل", "بيع نخيل", "نخيل واشنطونيا", "نخيل زينة", "نخيل تمور",
+    "نخيل سكري", "نخيل خلاص", "نخيل برحي", "نخيل مجدول", "قلع ونقل نخيل", "نقل نخيل بالرياض",
+    "تكريب نخيل", "تنظيف نخيل", "مكافحة سوسة النخيل", "شبكات ري نخيل", "مشاتل نخيل", "تنسيق مزارع",
+    // كلمات عامة للمقاولات
+    "مقاولات زراعية السعودية", "سياج ونخيل المملكة", "مقاول مزارع معتمد", siteName
+  ];
 
   return {
-    ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
+    metadataBase: new URL(siteUrl),
     title: {
-      default: `${siteName} | النخيل والشبوك والأشجار والزيتون والهناجر والسواتر`,
+      default: `${siteName} | تركيب شبوك وتوريد وزراعة النخيل في السعودية`,
       template: `%s | ${siteName}`,
     },
     description,
-    keywords: [
-      "مقاول شبوك", "تركيب شبوك", "شبوك مزارع", "شبوك أمنية", "تسوير مزارع", "تسوير أراضي", "شبوك شايكة", "سياج مزارع", "شبوك زراعية", "أسعار تركيب الشبوك", "مقاول شبوك الرياض", "شبوك مجلفنة", "سياج أمني",
-      "توريد نخيل", "زراعة نخيل", "نخيل واشنطني", "نخيل عربي", "نخيل خلاص", "نخيل سكري", "تكريب وتلقيح نخيل", "زراعة أشجار الزيتون", "مشاتل نخيل", "تنسيق مزارع", "تنسيق حدائق", "غرس نخيل",
-      "تركيب هناجر", "بناء هناجر", "مقاول هناجر ومستودعات", "هناجر حديد", "تركيب سواتر", "مظلات وسواتر", "سواتر حديد", "سواتر مزارع", "مستودعات تجارية", "شينكو",
-      "مؤسسة مقاولات عامة", siteName, "مقاول مزارع معتمد", "مقاولات زراعية السعودية"
-    ],
-    authors: [{ name: siteName }],
+    keywords,
+    authors: [{ name: siteName, url: siteUrl }],
     creator: siteName,
     publisher: siteName,
+    applicationName: siteName,
     verification: {
-      google: ["bOyx4ccipeKQO1eUBTPzaiA88qklJqjqH9U0aJTMcvQ", "kHp0HoG2JwtcXvGk4id5oXaRyFCJ1Cp19R_2c2LlOZY"],
+      google: [
+        "bOyx4ccipeKQO1eUBTPzaiA88qklJqjqH9U0aJTMcvQ",
+        "kHp0HoG2JwtcXvGk4id5oXaRyFCJ1Cp19R_2c2LlOZY",
+        ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ? [process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION] : [])
+      ],
     },
     formatDetection: {
       telephone: true,
@@ -49,23 +69,38 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     alternates: {
       canonical: "/",
+      languages: {
+        "ar-SA": "/",
+      },
     },
     openGraph: {
       type: "website",
       locale: "ar_SA",
-      ...(siteUrl ? { url: siteUrl } : {}),
-      title: `${siteName} | النخيل والشبوك والأشجار والزيتون والهناجر والسواتر`,
+      url: siteUrl,
+      title: `${siteName} | تركيب شبوك وتوريد وزراعة النخيل في السعودية`,
       description,
       siteName,
-      images: [shareImage],
+      images: [
+        {
+          url: shareImage,
+          width: 1200,
+          height: 630,
+          alt: `${siteName} - خدمات تركيب الشبوك وتوريد النخيل`,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${siteName} | النخيل والشبوك والأشجار والزيتون والهناجر والسواتر`,
+      title: `${siteName} | تركيب شبوك وتوريد وزراعة النخيل في السعودية`,
       description,
       images: [shareImage],
+      creator: `@${siteName.replace(/\s+/g, '')}`,
     },
-    icons: { icon: siteIcon, shortcut: siteIcon },
+    icons: {
+      icon: siteIcon,
+      shortcut: siteIcon,
+      apple: siteIcon,
+    },
     robots: {
       index: true,
       follow: true,
@@ -81,32 +116,143 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const siteName = await getSiteName();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.nakheel-seyaj.com";
+  const [siteName, settings] = await Promise.all([getSiteName(), getPublicSiteSettings()]);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nakheel-seyaj.com";
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
-  const googleAdsId = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID || "AW-18540157731";
+  const googleAdsId = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
+  const phone = settings.phone || "";
 
-  const jsonLd = {
+  // Schema.org Graph المتكامل لدعم محركات البحث وRich Snippets
+  const jsonLdGraph = {
     "@context": "https://schema.org",
-    "@type": "HomeAndConstructionBusiness",
-    "name": siteName,
-    ...(siteUrl ? { "url": siteUrl } : {}),
-    "address": {
-      "@type": "PostalAddress",
-      "addressCountry": "SA",
-    },
-    "priceRange": "$$",
-    "areaServed": [{ "@type": "Country", "name": "Saudi Arabia" }],
-    "hasOfferCatalog": {
-      "@type": "OfferCatalog",
-      "name": `مجالات ${siteName}`,
-      "itemListElement": [
-        ...["النخيل", "الشبوك", "الأشجار", "الزيتون", "هناجر وسواتر"].map((name) => ({
-          "@type": "Offer",
-          "itemOffered": { "@type": "Service", name },
-        })),
-      ]
-    }
+    "@graph": [
+      {
+        "@type": "HomeAndConstructionBusiness",
+        "@id": `${siteUrl}/#organization`,
+        "name": siteName,
+        "url": siteUrl,
+        "logo": settings.logoImageUrl || `${siteUrl}/favicon.ico`,
+        "image": settings.heroImageUrl || categories[0].image,
+        "description": "حلول متخصصة في تركيب شبوك المزارع والأراضي، الشبوك الأمنية، وتوريد وزراعة أجود أنواع النخيل ونخيل الزينة وشبكات الري في السعودية.",
+        "telephone": phone,
+        "priceRange": "$$",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "SA",
+          "addressRegion": "الرياض",
+          "streetAddress": settings.address || "المملكة العربية السعودية"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": "24.7136",
+          "longitude": "46.6753"
+        },
+        "areaServed": [
+          { "@type": "City", "name": "الرياض" },
+          { "@type": "Country", "name": "Saudi Arabia" }
+        ],
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": `خدمات ${siteName}`,
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "تركيب شبوك المزارع والأراضي الكبرى",
+                "description": "تسوير متكامل للمزارع والمخططات بأعمدة مجلفنة وقواعد خرسانية مسلحة."
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "الشبوك الأمنية والشائكة للمنشآت والمواقع",
+                "description": "تركيب سياج أمني وأسلاك شائكة كونسرتينا لحماية المستودعات والمصانع."
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "توريد وغرس نخيل التمور العربي الأصيل",
+                "description": "توريد سلالات خلاص وسكري وبرحي ومجدول مفحوصة بيئياً مع ضمان نجاح الغرس."
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "نخيل الزينة والواشنطونيا للقصور والمشاريع",
+                "description": "تنسيق وغرس نخيل واشنطونيا أمريكي للفلل والقصور والمداخل الفارهة."
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "قلع ونقل وغرس النخيل الكبير بالمعدات الثقيلة",
+                "description": "رافعات وأوناش هيدروليكية لنقل وقلع النخيل العملاق بنسب نجاح قياسية."
+              }
+            }
+          ]
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${siteUrl}/#website`,
+        "url": siteUrl,
+        "name": siteName,
+        "inLanguage": "ar-SA",
+        "publisher": { "@id": `${siteUrl}/#organization` }
+      },
+      {
+        "@type": "FAQPage",
+        "@id": `${siteUrl}/#faq`,
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "ما هي أنواع الشبوك المتوفرة للتركيب لديكم؟",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "نوفر شبوك تسوير المزارع والأراضي الكبرى، الشبوك الأمنية والشائكة للمنشآت والكسارات، شبوك المحميات والمرابط، بالإضافة إلى تصنيع البوابات الحديدية السحب والمفصلية، بحديد مجلفن غمس ساخن مقاوم للصدأ."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "ما هي أنواع النخيل التي تقومون بتوريدها وزراعتها؟",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "نقوم بتوريد وزراعة أجود سلالات نخيل التمور (خلاص، سكري، برحي، مجدول، عجوة، صقعي)، بالإضافة إلى نخيل الزينة والواشنطونيا للقصور والفلل والمنتجعات مع ضمان نجاح الغرس وخلوه التام من الآفات."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "هل توفرون خدمة نقل وقلع النخيل الكبير والمعمر؟",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "نعم، نمتلك أسطول رافعات وأوناش هيدروليكية متخصصة لقلع ونقل وغرس النخيل الكبير من موقع لآخر مع حماية تامة للجذور والجمارة بنسبة نجاح غرس تتجاوز 98%."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "هل تنفذون أعمال تسوير الأراضي في مختلف مناطق المملكة؟",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "نعم، ننفذ مشاريع الشبوك وتسوير المزارع وتوريد النخيل في مدينة الرياض وكافة مناطق ومدن المملكة العربية السعودية."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "كيف يمكنني طلب معاينة ميدانية أو عرض سعر؟",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "يمكنكم التواصل معنا مباشرة عبر الاتصال الهاتفي أو محادثة الواتساب لتحديد موعد المعاينة والرفع المساحي للموقع وتقديم عرض سعر فوري ومفصل."
+            }
+          }
+        ]
+      }
+    ]
   };
 
   return (
@@ -114,26 +260,21 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdGraph) }}
         />
         {/* Google Ads Tag (gtag.js) */}
-        <script
-          async
-          src={`https://www.googletagmanager.com/gtag/js?id=${googleAdsId}`}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${googleAdsId}');
-            `,
-          }}
-        />
+        {googleAdsId && <script async src={`https://www.googletagmanager.com/gtag/js?id=${googleAdsId}`} />}
+        {googleAdsId && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', '${googleAdsId}');`,
+            }}
+          />
+        )}
       </head>
-      <body className={cairo.className}>
+      <body className={arabicFont.className}>
         {children}
+        <FloatingActions phone={phone} whatsapp={settings.whatsapp} />
         {gaId && (
           <>
             <Script

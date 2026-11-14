@@ -1,15 +1,8 @@
 import Navbar from "./Navbar";
-import { safeFetchFresh } from "../../lib/sanity";
-import { getSiteName } from "../../lib/site-settings";
+import { getPublicSiteSettings } from "../../lib/site-settings";
 
 export default async function SiteNavbar({ overlay = false }: { overlay?: boolean }) {
-  const [settings, siteName] = await Promise.all([
-    safeFetchFresh<{ logoImageUrl?: string }>(
-      `*[_type == "settings"][0]{"logoImageUrl": logo.asset->url}`,
-      {},
-    ),
-    getSiteName(),
-  ]);
+  const settings = await getPublicSiteSettings();
 
-  return <Navbar overlay={overlay} logoUrl={settings?.logoImageUrl} siteName={siteName} />;
+  return <Navbar overlay={overlay} logoUrl={settings.logoImageUrl} siteName={settings.siteName} settings={settings} />;
 }

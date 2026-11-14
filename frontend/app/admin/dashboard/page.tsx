@@ -2,8 +2,6 @@ import Link from "next/link";
 import { 
   FolderKanban, 
   Plus, 
-  Users, 
-  Briefcase, 
   ArrowUpRight, 
   Image as ImageIcon,
   Settings as SettingsIcon,
@@ -15,17 +13,16 @@ import Image from "next/image";
 export const revalidate = 0;
 
 async function getStats() {
-  const [projectsCount, servicesCount, testimonialsCount, latestProjects] = await Promise.all([
+  const [projectsCount, galleryCount, latestProjects] = await Promise.all([
     safeFetch(`count(*[_type == "project"])`, 0),
-    safeFetch(`count(*[_type == "service"])`, 0),
-    safeFetch(`count(*[_type == "testimonial"])`, 0),
+    safeFetch(`count(*[_type == "gallery"])`, 0),
     safeFetch(`*[_type == "project"] | order(_createdAt desc)[0...4] { _id, title, category, "imageUrl": mainImage.asset->url }`, []),
   ]);
-  return { projectsCount, servicesCount, testimonialsCount, latestProjects };
+  return { projectsCount, galleryCount, latestProjects };
 }
 
 export default async function DashboardHome() {
-  const { projectsCount, servicesCount, testimonialsCount, latestProjects } = await getStats();
+  const { projectsCount, galleryCount, latestProjects } = await getStats();
 
   return (
     <div className="pb-10 font-sans rtl">
@@ -33,8 +30,8 @@ export default async function DashboardHome() {
       {/* 1. الترحيب (Banner) */}
       <div className="bg-slate-900 rounded-[2.5rem] p-8 md:p-12 mb-10 text-white relative overflow-hidden shadow-2xl">
          <div className="relative z-10">
-            <h1 className="text-3xl md:text-5xl font-black mb-4">أهلاً بك يا ريس! 👋</h1>
-            <p className="text-slate-400 text-lg max-w-md font-light">إليك ملخص سريع لأداء موقعك ومشاريعك الحالية اليوم.</p>
+            <h1 className="text-3xl md:text-5xl font-black mb-4">أهلاً بك في لوحة التحكم 👋</h1>
+            <p className="text-slate-400 text-lg max-w-md font-light">إدارة اسم الموقع، الصور المضافة، والأعمال المنشورة.</p>
          </div>
          {/* خلفية جمالية */}
          <div className="absolute top-0 left-0 w-64 h-64 bg-blue-600 rounded-full blur-[100px] opacity-20 -translate-x-1/2 -translate-y-1/2"></div>
@@ -42,38 +39,27 @@ export default async function DashboardHome() {
       </div>
 
       {/* 2. الإحصائيات (Quick Stats) */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-12">
         
-        {/* بطاقة المشاريع */}
+        {/* بطاقة صور المعرض */}
         <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
           <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-4">
+            <ImageIcon size={24} />
+          </div>
+          <div>
+            <p className="text-slate-500 font-bold text-xs md:text-sm uppercase tracking-wider">صور المعرض</p>
+            <h3 className="text-3xl md:text-5xl font-black text-slate-900 mt-1">{galleryCount}</h3>
+          </div>
+        </div>
+
+        {/* بطاقة المشاريع */}
+        <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
+          <div className="w-12 h-12 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mb-4">
             <FolderKanban size={24} />
           </div>
           <div>
-            <p className="text-slate-500 font-bold text-xs md:text-sm uppercase tracking-wider">إجمالي الأعمال</p>
+            <p className="text-slate-500 font-bold text-xs md:text-sm uppercase tracking-wider">المشاريع والأعمال</p>
             <h3 className="text-3xl md:text-5xl font-black text-slate-900 mt-1">{projectsCount}</h3>
-          </div>
-        </div>
-
-        {/* بطاقة الخدمات */}
-        <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
-          <div className="w-12 h-12 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mb-4">
-            <Briefcase size={24} />
-          </div>
-          <div>
-            <p className="text-slate-500 font-bold text-xs md:text-sm uppercase tracking-wider">خدماتنا</p>
-            <h3 className="text-3xl md:text-5xl font-black text-slate-900 mt-1">{servicesCount}</h3>
-          </div>
-        </div>
-
-        {/* بطاقة الشهادات (تأخذ عرض كامل في الجوال) */}
-        <div className="col-span-2 md:col-span-1 bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition text-right">
-          <div className="w-12 h-12 bg-yellow-50 text-yellow-600 rounded-2xl flex items-center justify-center mb-4">
-            <Users size={24} />
-          </div>
-          <div>
-            <p className="text-slate-500 font-bold text-xs md:text-sm uppercase tracking-wider">آراء العملاء</p>
-            <h3 className="text-3xl md:text-5xl font-black text-slate-900 mt-1">{testimonialsCount}</h3>
           </div>
         </div>
 
@@ -86,7 +72,15 @@ export default async function DashboardHome() {
             إجراءات سريعة
          </h2>
          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Link href="/admin/projects/new" className="group bg-blue-600 text-white p-6 rounded-[2rem] flex items-center justify-between hover:bg-blue-700 transition shadow-lg shadow-blue-900/20">
+            <Link href="/admin/gallery/new" className="group bg-blue-600 text-white p-6 rounded-[2rem] flex items-center justify-between hover:bg-blue-700 transition shadow-lg shadow-blue-900/20">
+               <div className="flex items-center gap-4">
+                  <div className="bg-white/20 p-3 rounded-2xl"><Plus size={24} /></div>
+                  <span className="font-black text-lg">رفع صور جديدة</span>
+               </div>
+               <ArrowUpRight className="opacity-50 group-hover:opacity-100 transition" />
+            </Link>
+
+            <Link href="/admin/projects/new" className="group bg-emerald-700 text-white p-6 rounded-[2rem] flex items-center justify-between hover:bg-emerald-800 transition shadow-lg shadow-emerald-900/20">
                <div className="flex items-center gap-4">
                   <div className="bg-white/20 p-3 rounded-2xl"><Plus size={24} /></div>
                   <span className="font-black text-lg">إضافة مشروع جديد</span>
@@ -97,7 +91,7 @@ export default async function DashboardHome() {
             <Link href="/admin/settings" className="group bg-white p-6 rounded-[2rem] border border-slate-100 flex items-center justify-between hover:border-blue-600 transition shadow-sm">
                <div className="flex items-center gap-4 text-slate-700">
                   <div className="bg-slate-50 p-3 rounded-2xl text-slate-400 group-hover:text-blue-600 transition"><SettingsIcon size={24} /></div>
-                  <span className="font-black text-lg">تعديل الإعدادات</span>
+                  <span className="font-black text-lg">اسم الموقع والصور</span>
                </div>
                <ArrowUpRight className="opacity-20 group-hover:opacity-100 text-blue-600 transition" />
             </Link>

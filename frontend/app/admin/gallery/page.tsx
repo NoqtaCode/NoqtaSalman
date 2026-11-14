@@ -22,16 +22,11 @@ export default async function AdminGallery({ searchParams }: { searchParams: Pro
   // دالة لترجمة الأكواد لأسماء عربية
   const getCategoryLabel = (cat: string) => {
     const labels: Record<string, string> = {
-      palms: 'النخيل',
       fences: 'الشبوك',
-      trees: 'الأشجار',
-      olives: 'الزيتون',
-      structures: 'هناجر وسواتر',
+      palms: 'النخيل',
+      theel: 'الثيل',
       shabouk: 'شبوك',
       nakheel: 'نخيل',
-      hanajer: 'هناجر',
-      sawater: 'سواتر ومظلات',
-      hajar: 'حجر'
     };
     return labels[cat] || 'عام';
   };

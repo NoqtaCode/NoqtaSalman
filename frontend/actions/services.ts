@@ -4,11 +4,12 @@
 // Services Server Actions
 // ============================================================
 
-import { client } from "../lib/sanity";
+import { assertSanityConfigured, client } from "../lib/sanity";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function createService(formData: FormData) {
+  assertSanityConfigured();
   const title = formData.get('title') as string;
   const description = formData.get('description') as string;
   const imageFile = formData.get('image') as File;
@@ -36,12 +37,14 @@ export async function createService(formData: FormData) {
 }
 
 export async function deleteService(id: string) {
+  assertSanityConfigured();
   await client.delete(id);
   revalidatePath('/admin/services');
   revalidatePath('/');
 }
 
 export async function updateService(id: string, formData: FormData) {
+  assertSanityConfigured();
   const title = formData.get('title') as string;
   const description = formData.get('description') as string;
   const imageFile = formData.get('image') as File;

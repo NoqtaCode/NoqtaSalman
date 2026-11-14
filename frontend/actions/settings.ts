@@ -4,19 +4,41 @@
 // Settings Server Actions
 // ============================================================
 
-import { client } from "../lib/sanity";
+import { client, getSanityWriteError } from "../lib/sanity";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+async function withRetry<T>(fn: () => Promise<T>, retries = 2, delayMs = 1200): Promise<T> {
+  let lastError: unknown;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await fn();
+    } catch (err: any) {
+      lastError = err;
+      const isNetwork = err?.isNetworkError || err?.code === 'UND_ERR_CONNECT_TIMEOUT' || err?.message?.includes('fetch failed') || err?.name === 'ConnectTimeoutError';
+      if (i < retries && isNetwork) {
+        await new Promise((res) => setTimeout(res, delayMs * (i + 1)));
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw lastError;
+}
+
 export async function updateGeneralSettings(formData: FormData) {
-  const fields = ['siteName', 'phone', 'whatsapp', 'email', 'address', 'facebook', 'heroTitle', 'heroSubTitle', 'heroDescription'];
+  const configError = getSanityWriteError();
+  if (configError) return { success: false, errorCode: configError };
+  const fields = [
+    'siteName', 'heroTitle', 'phone', 'whatsapp', 'email', 'address'
+  ];
   const patchData: any = {};
 
   fields.forEach(field => {
-    const value = formData.get(field) as string;
-    if (value && value.trim() !== "") {
-      patchData[field] = value.trim();
+    if (formData.has(field)) {
+      const value = formData.get(field);
+      patchData[field] = typeof value === "string" ? value.trim() : "";
     }
   });
 
@@ -25,16 +47,50 @@ export async function updateGeneralSettings(formData: FormData) {
   const logoFile = formData.get('logo') as File;
 
   try {
-    const existingSettingsId: string | null = await client.fetch(`*[_type == "settings"][0]._id`);
+    const existingSettingsId: string | null = await withRetry(() => client.fetch(`*[_type == "settings"] | order(_updatedAt desc)[0]._id`, {}, { cache: "no-store" }));
     const settingsId = existingSettingsId || 'siteSettings';
-    await client.createIfNotExists({ _id: settingsId, _type: 'settings' });
+    await withRetry(() => client.createIfNotExists({ _id: settingsId, _type: 'settings' }));
     let patch = client.patch(settingsId).set(patchData);
 
-    const categorySlugs = ['palms', 'fences', 'trees', 'olives', 'structures'];
+    const categorySlugs = ['fences', 'palms', 'theel'];
     for (const slug of categorySlugs) {
       const selectedAsset = formData.get(`categoryHomeImage_${slug}`);
+      const rawCategoryFiles = formData.getAll(`categoryHomeUpload_${slug}`) as File[];
+      const categoryFiles = rawCategoryFiles.filter((f) => f && f.size > 0 && typeof f.name === 'string');
       const path = `categoryHomeImages.${slug}`;
-      if (selectedAsset === '__auto__') {
+
+      if (categoryFiles.length > 0) {
+        let firstAssetId: string | null = null;
+        for (let i = 0; i < categoryFiles.length; i++) {
+          const file = categoryFiles[i];
+          validateImage(file);
+          const asset = await withRetry(() => client.assets.upload('image', file, {
+            filename: file.name,
+          }));
+          if (i === 0) {
+            firstAssetId = asset._id;
+          }
+
+          // Save each uploaded image into the gallery under this category
+          const categoryTitle = slug === 'palms' ? 'توريد وزراعة النخيل' : slug === 'theel' ? 'توريد وتركيب الثيل' : 'تركيب شبوك ومظلات';
+          await withRetry(() => client.create({
+            _type: 'gallery',
+            title: categoryTitle,
+            category: slug,
+            image: {
+              _type: 'image',
+              asset: {
+                _type: 'reference',
+                _ref: asset._id,
+              },
+            },
+          }));
+        }
+
+        if (firstAssetId) {
+          patch = patch.set({ [path]: { _type: 'image', asset: { _type: 'reference', _ref: firstAssetId } } });
+        }
+      } else if (selectedAsset === '__auto__') {
         patch = patch.unset([path]);
       } else if (typeof selectedAsset === 'string' && selectedAsset.trim()) {
         patch = patch.set({ [path]: { _type: 'image', asset: { _type: 'reference', _ref: selectedAsset } } });
@@ -42,36 +98,59 @@ export async function updateGeneralSettings(formData: FormData) {
     }
 
     if (logoFile && logoFile.size > 0) {
-      const asset = await client.assets.upload('image', logoFile);
+      validateImage(logoFile);
+      const asset = await withRetry(() => client.assets.upload('image', logoFile));
       patch = patch.set({ logo: { _type: 'image', asset: { _type: "reference", _ref: asset._id } } });
     }
 
     if (heroFile && heroFile.size > 0) {
-      const asset = await client.assets.upload('image', heroFile);
+      validateImage(heroFile);
+      const asset = await withRetry(() => client.assets.upload('image', heroFile));
       patch = patch.set({ heroImage: { _type: 'image', asset: { _type: "reference", _ref: asset._id } } });
     }
 
     if (aboutFile && aboutFile.size > 0) {
-      const asset = await client.assets.upload('image', aboutFile);
+      validateImage(aboutFile);
+      const asset = await withRetry(() => client.assets.upload('image', aboutFile));
       patch = patch.set({ aboutImage: { _type: 'image', asset: { _type: "reference", _ref: asset._id } } });
     }
 
-    await patch.commit();
+    await withRetry(() => patch.commit());
     revalidatePath('/');
     revalidatePath('/', 'layout');
     revalidatePath('/about');
-    for (const slug of ['palms', 'fences', 'trees', 'olives', 'structures']) {
+    revalidatePath('/services');
+    revalidatePath('/gallery');
+    revalidatePath('/contact');
+    for (const slug of ['fences', 'palms', 'theel', 'shabouk', 'nakheel']) {
       revalidatePath(`/projects/${slug}`);
     }
     revalidatePath('/admin/settings');
-    return { success: true, message: "تم تحديث البيانات بنجاح" };
+    revalidatePath('/admin/gallery');
+    return { success: true, message: "تم تحديث البيانات وحفظ الصور بنجاح" };
   } catch (error) {
     console.error("Failed to save general site settings:", error);
-    return { success: false, message: "حدث خطأ في السيرفر" };
+    const statusCode = (error as { statusCode?: number })?.statusCode;
+    if (statusCode === 401) return { success: false, errorCode: "unauthorized" };
+    if (statusCode === 403) return { success: false, errorCode: "forbidden" };
+    if (error instanceof Error && error.message.includes("الصورة")) return { success: false, errorCode: "invalid-image" };
+    return { success: false, errorCode: "save" };
+  }
+}
+
+function validateImage(file: File) {
+  const isImageMime = file.type.startsWith('image/');
+  const isImageExt = /\.(jpe?g|png|webp|avif)$/i.test(file.name);
+  if (!isImageMime && !isImageExt) {
+    throw new Error('صيغة الصورة غير مدعومة. استخدم JPG أو PNG أو WebP.');
+  }
+  if (file.size > 25 * 1024 * 1024) {
+    throw new Error('حجم الصورة يجب ألا يتجاوز 25 ميجابايت.');
   }
 }
 
 export async function updateAccountSettings(formData: FormData) {
+  if (getSanityWriteError()) return { success: false, message: "تحقق من إعداد اتصال Sanity ورمز الكتابة في متغيرات بيئة الخادم." };
   const newUsername = formData.get('username') as string;
   const newPassword = formData.get('password') as string;
   const securityCode = formData.get('securityCode') as string;
@@ -85,7 +164,7 @@ export async function updateAccountSettings(formData: FormData) {
   }
 
   try {
-    const existingSettingsId: string | null = await client.fetch(`*[_type == "settings"][0]._id`);
+    const existingSettingsId: string | null = await client.fetch(`*[_type == "settings"] | order(_updatedAt desc)[0]._id`, {}, { cache: "no-store" });
     const settingsId = existingSettingsId || 'siteSettings';
     await client.createIfNotExists({ _id: settingsId, _type: 'settings' });
     await client

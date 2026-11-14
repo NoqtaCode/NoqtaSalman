@@ -10,6 +10,7 @@ export default async function EditProjectPage(props: { params: Promise<{ id: str
   const project = await safeFetch<any>(`*[_id == $id][0]{ ..., "imageUrl": mainImage.asset->url }`, null, { id: params.id });
 
   if (!project) return <div>المشروع غير موجود</div>;
+  const selectedCategory = project.category === "shabouk" ? "fences" : project.category === "nakheel" ? "palms" : project.category;
 
   return (
     <div className="max-w-3xl mx-auto px-4 pb-20">
@@ -35,13 +36,10 @@ export default async function EditProjectPage(props: { params: Promise<{ id: str
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-2">القسم المخصص *</label>
-              <select name="category" defaultValue={project.category} required className="w-full border-2 border-gray-100 rounded-2xl p-4 text-black bg-gray-50/50 focus:border-blue-500 outline-none">
-                <option value="shabouk">أعمال الشبوك والمزارع</option>
-                <option value="nakheel">تنسيق النخيل والحدائق</option>
-                <option value="hanajer">الهناجر والمستودعات</option>
-                <option value="sawater">سواتر ومظلات</option>
-                <option value="hajar">أعمال الحجر الطبيعي</option>
-                <option value="other">أخرى</option>
+              <select name="category" defaultValue={selectedCategory} required className="w-full border-2 border-gray-100 rounded-2xl p-4 text-black bg-gray-50/50 focus:border-blue-500 outline-none">
+                <option value="fences">الشبوك</option>
+                <option value="palms">النخيل</option>
+                <option value="theel">الثيل</option>
               </select>
             </div>
             <div>

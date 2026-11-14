@@ -49,10 +49,11 @@ export default function ProjectUploadForm() {
     setFileError('');
     setUploadedIndices([]);
     setProgress('');
-    if (selected.some((file) => !ALLOWED_TYPES.includes(file.type))) {
+    const valid = selected.filter((file) => file.size > 0 && (file.type.startsWith('image/') || /\.(jpe?g|png|webp|heic|avif)$/i.test(file.name)));
+    if (selected.length > 0 && valid.length === 0) {
       event.currentTarget.value = '';
       setSelectedCount(0);
-      setFileError('استخدم صور JPG أو PNG أو WebP فقط.');
+      setFileError('يرجى اختيار ملفات صور صالحة.');
       return;
     }
     setSelectedCount(selected.length);
@@ -141,11 +142,9 @@ export default function ProjectUploadForm() {
         <label className="block text-sm font-black text-slate-700 mb-3 pr-2">القسم *</label>
         <select name="category" required defaultValue="" className="w-full border-2 border-gray-100 rounded-2xl p-4 focus:border-blue-500 outline-none bg-gray-50/50 text-black">
           <option value="" disabled>-- اختر القسم --</option>
-          <option value="palms">النخيل</option>
           <option value="fences">الشبوك</option>
-          <option value="trees">الأشجار</option>
-          <option value="olives">الزيتون</option>
-          <option value="structures">هناجر وسواتر</option>
+          <option value="palms">النخيل</option>
+          <option value="theel">الثيل</option>
         </select>
       </div>
 
@@ -156,7 +155,7 @@ export default function ProjectUploadForm() {
             ref={inputRef}
             type="file"
             name="image"
-            accept="image/jpeg,image/png,image/webp"
+            accept="image/*"
             multiple
             required
             disabled={processing}

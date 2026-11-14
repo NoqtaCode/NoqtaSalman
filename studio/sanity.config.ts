@@ -7,8 +7,8 @@ export default defineConfig({
   name: 'default',
   title: 'Siyaj And Nakheel',
 
-  projectId: 'nxi2nagn',
-  dataset: 'production',
+  projectId: process.env.SANITY_STUDIO_PROJECT_ID || 'new-site-project-id',
+  dataset: process.env.SANITY_STUDIO_DATASET || 'production',
 
   plugins: [structureTool(), visionTool()],
 

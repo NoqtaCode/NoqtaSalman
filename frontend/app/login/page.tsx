@@ -79,7 +79,12 @@ export default function AdminLogin() {
         </form>
 
         <div className="mt-8 text-center">
-           <p className="text-[10px] text-slate-300 font-bold uppercase tracking-widest">الموقع مطور بواسطة NoqtaCode</p>
+           <a 
+             href="https://wa.me/967737543563" 
+             target="_blank" 
+             rel="noreferrer" 
+             className="text-[10px] text-slate-300 hover:text-[#25D366] transition font-bold uppercase tracking-widest"
+           >الموقع مطور بواسطة NoqtaCode</a>
         </div>
       </div>
     </div>
